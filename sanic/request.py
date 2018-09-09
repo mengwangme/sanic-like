@@ -139,21 +139,20 @@ class Request(dict):
 File = namedtuple('File', ['type', 'body', 'name'])
 
 
-# 解析 POST 请求表单
 def parse_multipart_form(body, boundary):
     """
-    解析请求消息体并返回字段和文件
+    解析含有多个部分的表单
     :param body: 请求消息体
     :param boundary: 分隔符
     """
-    files = RequestParameters()
-    fields = RequestParameters()
+    files = RequestParameters() # 文件
+    fields = RequestParameters()    # 文件域
 
     form_parts = body.split(boundary)
     for form_part in form_parts[1:-1]:
-        file_name = None
-        file_type = None
-        field_name = None
+        file_name = None    # 文件名
+        file_type = None    # 文件类型
+        field_name = None   # 文件域
         line_index = 2
         line_end_index = 0
         while not line_end_index == -1:
@@ -176,15 +175,15 @@ def parse_multipart_form(body, boundary):
             elif form_header_field == 'Content-Type':
                 file_type = form_header_value
 
-        post_data = form_part[line_index:-4]
+        post_data = form_part[line_index:-4]    # POST 提交数据
         if file_name or file_type:
-            file = File(type=file_type, name=file_name, body=post_data)
+            file = File(type=file_type, name=file_name, body=post_data) # 创建文件
             if field_name in files:
                 files[field_name].append(file)
             else:
                 files[field_name] = [file]
         else:
-            value = post_data.decode('utf-8')
+            value = post_data.decode('utf-8')   # 非文件类型数据
             if field_name in fields:
                 fields[field_name].append(value)
             else:
