@@ -16,6 +16,26 @@ class InvalidUsage(SanicException):
     """
     status_code = 400
 
+class ServerError(SanicException):
+    """
+    服务器异常
+    """
+    status_code = 500
+
+class RequestTimeout(SanicException):
+    """
+    请求超时
+    """
+    status_code = 408
+
+class PayloadTooLarge(SanicException):
+    """
+    请求数据大小超过限制
+    """
+    status_code = 413
+
+
+
 # 异常处理器
 class Handler:
     handlers = None
