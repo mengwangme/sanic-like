@@ -33,13 +33,6 @@ class RouteExists(Exception):
     pass
 
 
-class RouteDoesNotExist(Exception):
-    """
-    路由不存在
-    """
-    pass
-
-
 class Router:
     """
     此路由支持附带参数和请求方式。

@@ -28,7 +28,7 @@ class Sanic:
             frame_records = stack()[1]
             name = getmodulename(frame_records[1])
         self.name = name
-        self.router = router or Router()                    # 路由
+        self.router = router or Router()                      # 路由
         self.error_handler = error_handler or Handler(self)   # 错误处理
         self.config = Config()                                # 默认配置项
         self.loop = None
