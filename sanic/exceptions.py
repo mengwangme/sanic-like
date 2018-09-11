@@ -34,7 +34,11 @@ class PayloadTooLarge(SanicException):
     """
     status_code = 413
 
-
+class NotFound(SanicException):
+    """
+    无法找到目标
+    """
+    status_code = 404
 
 # 异常处理器
 class Handler:

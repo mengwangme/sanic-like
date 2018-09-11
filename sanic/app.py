@@ -13,6 +13,7 @@ from sanic.exceptions import Handler, ServerError
 from sanic.log import log
 from sanic.response import HTTPResponse
 from sanic.server import serve, HttpProtocol
+from sanic.router import Router
 
 
 class Sanic:
@@ -27,17 +28,48 @@ class Sanic:
             frame_records = stack()[1]
             name = getmodulename(frame_records[1])
         self.name = name
-        # self.router = router or Router()                    # 路由
+        self.router = router or Router()                    # 路由
         self.error_handler = error_handler or Handler(self)   # 错误处理
         self.config = Config()                                # 默认配置项
-        # self.request_middleware = deque()
-        # self.response_middleware = deque()
-        # self.blueprints = {}
-        # self._blueprint_order = []
         self.loop = None
         self.debug = None
         self.sock = None
         self.processes = None
+
+
+    # -------------------------------------------------------------------- #
+    # 注册路由
+    # -------------------------------------------------------------------- #
+
+    # 装饰器
+    def route(self, uri, methods=None):
+        """
+        使用装饰器将处理函数注册为路由
+        :param uri: URL 路径
+        :param methods: 允许的请求方法
+        :return: 被装饰后的函数
+        """
+        if not uri.startswith('/'):
+            uri = '/' + uri
+
+        def response(handler):
+            # 调用 Router.add 方法添加路由
+            self.router.add(uri=uri, methods=methods, handler=handler)
+            return handler
+
+        return response
+
+    # 添加路由
+    def add_route(self, handler, uri, methods=None):
+        """
+        注册路由的非装饰器方法
+        :param handler: 处理器函数
+        :param uri: URL 路径
+        :param methods: 允许的请求方法
+        :return:
+        """
+        self.route(uri=uri, methods=methods)(handler)
+        return handler
 
 
     # -------------------------------------------------------------------- #
