@@ -5,6 +5,7 @@ from inspect import isawaitable, stack, getmodulename
 from multiprocessing import Process, Event
 from signal import signal, SIGTERM, SIGINT
 from traceback import format_exc
+from collections import deque
 import logging
 
 
@@ -35,13 +36,15 @@ class Sanic:
         self.debug = None
         self.sock = None
         self.processes = None
+        self.request_middleware = deque()                   # 请求中间件
+        self.response_middleware = deque()                  # 响应中间件
 
 
     # -------------------------------------------------------------------- #
-    # 注册路由
+    # 注册
     # -------------------------------------------------------------------- #
 
-    # 装饰器
+    # 路由装饰器
     def route(self, uri, methods=None):
         """
         使用装饰器将处理函数注册为路由
@@ -72,6 +75,43 @@ class Sanic:
         return handler
 
 
+    # 中间件装饰器
+    def middleware(self, *args, **kwargs):
+        """
+        使用装饰器注册中间件。格式如:
+        `@app.middleware` or `@app.middleware('request')`
+        """
+        # 默认为 request 中间件装饰器
+        attach_to = 'request'
+
+        def register_middleware(middleware):
+            if attach_to == 'request':
+                self.request_middleware.append(middleware)
+            if attach_to == 'response':
+                self.response_middleware.appendleft(middleware)
+            return middleware
+
+        # 检查被调用方式, `@middleware` or `@middleware('AT')`
+        if len(args) == 1 and len(kwargs) == 0 and callable(args[0]):
+            return register_middleware(args[0])
+        else:
+            attach_to = args[0]
+            return register_middleware
+
+    # 异常装饰器
+    def exception(self, *exceptions):
+        """
+        使用装饰器给异常注册处理函数。
+        :param exceptions: 指定异常
+        """
+        def response(handler):
+            for exception in exceptions:
+                self.error_handler.add(exception, handler)
+            return handler
+
+        return response
+
+
     # -------------------------------------------------------------------- #
     # 处理请求
     # -------------------------------------------------------------------- #
@@ -87,32 +127,53 @@ class Sanic:
         :param response_callback: 可异步的 response 回调函数
         """
         try:
-            # -------------------------------------------- #
-            # Request Middleware
-            # -------------------------------------------- #
 
             response = False
 
+            # -------------------------------------------- #
+            # 请求中间件
+            # -------------------------------------------- #
 
+            # 执行请求中间件
+            if self.request_middleware:
+                for middleware in self.request_middleware:
+                    response = middleware(request)
+                    if isawaitable(response):
+                        response = await response
+                    if response:
+                        break
+
+            # 没有中间件
             if not response:
                 # -------------------------------------------- #
                 # 执行处理器
                 # -------------------------------------------- #
 
-                # Fetch handler from router
+                # 在路由中获得处理函数
                 handler, args, kwargs = self.router.get(request)
                 if handler is None:
                     raise ServerError(
                         ("'None' was returned while requesting a "
                          "handler from the router"))
 
-
-
-
                 # Run response handler
                 response = handler(request, *args, **kwargs)
                 if isawaitable(response):
                     response = await response
+
+
+            # -------------------------------------------- #
+            # 响应中间件
+            # --------------------------------------------
+
+            if self.response_middleware:
+                for middleware in self.response_middleware:
+                    _response = middleware(request, response)
+                    if isawaitable(_response):
+                        _response = await _response
+                    if _response:
+                        response = _response
+                        break
 
         except Exception as e:
             # -------------------------------------------- #
@@ -150,7 +211,6 @@ class Sanic:
         :param debug: 开启 debug 输出
         :param sock: 服务器接受数据的套接字
         :param workers: 进程数
-        received before it is respected
         :param loop: 异步事件循环
         :param protocol: 异步协议子类
         """
