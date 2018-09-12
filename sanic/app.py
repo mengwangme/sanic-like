@@ -38,6 +38,8 @@ class Sanic:
         self.processes = None
         self.request_middleware = deque()                   # 请求中间件
         self.response_middleware = deque()                  # 响应中间件
+        self.blueprints = {}  # 蓝图
+        self._blueprint_order = []
 
 
     # -------------------------------------------------------------------- #
@@ -110,6 +112,25 @@ class Sanic:
             return handler
 
         return response
+
+    # 蓝图
+    def blueprint(self, blueprint, **options):
+        """
+        注册蓝图到应用中
+        :param blueprint: 蓝图对象
+        :param options: 更改蓝图对象默认配置参数
+        """
+        if blueprint.name in self.blueprints:
+            assert self.blueprints[blueprint.name] is blueprint, \
+                'A blueprint with the name "%s" is already registered.  ' \
+                'Blueprint names must be unique.' % \
+                (blueprint.name,)
+
+        else:
+            self.blueprints[blueprint.name] = blueprint
+            self._blueprint_order.append(blueprint)
+        blueprint.register(self, options)
+
 
 
     # -------------------------------------------------------------------- #
