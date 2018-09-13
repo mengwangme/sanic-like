@@ -1,5 +1,5 @@
 from sanic.app import Sanic
-from sanic.response import html
+from sanic.response import html, text
 
 
 app = Sanic()
