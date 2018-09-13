@@ -58,10 +58,9 @@ class Blueprint:
         :param name: 蓝图名称
         :param url_prefix:  所有 URLs 的前缀
         """
-        self.name = name
-        self.url_prefix = url_prefix
-        self.deferred_functions = []
-        self.listeners = defaultdict(list)
+        self.name = name                    # 蓝图名，唯一
+        self.url_prefix = url_prefix        # 路由前缀
+        self.deferred_functions = []        # 推迟执行的函数集合
 
     def record(self, func):
         """
@@ -86,7 +85,7 @@ class Blueprint:
     # 以下方法都使用了匿名函数 -- lambda
     #   - s 代表 BlueprintSetup 对象
     #
-
+    
     def route(self, uri, methods=None):
         """
         路由装饰器
