@@ -3,8 +3,8 @@ from functools import partial
 from signal import SIGINT, SIGTERM
 from time import time
 
-from multidict import CIMultiDict
 import uvloop as async_loop # 使用 uvloop 替代 asyncio
+from multidict import CIMultiDict
 from httptools import HttpRequestParser
 from httptools.parser.errors import HttpParserError
 

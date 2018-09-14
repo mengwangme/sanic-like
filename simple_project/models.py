@@ -6,7 +6,7 @@ from simple_project.config import db
 
 
 class Book(Model):
-    bookname = CharField(unique=True)
+    bookname = CharField()
     author = CharField()
     pub_house = CharField()
     pub_date = DateField(default=datetime.datetime.now())
