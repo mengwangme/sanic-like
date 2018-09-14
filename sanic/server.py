@@ -246,23 +246,10 @@ def update_current_time(loop):
     loop.call_later(1, partial(update_current_time, loop))
 
 
-# def trigger_events(events, loop):
-#     """
-#     触发器
-#     :param events: 一个或多个异步函数
-#     :param loop: 事件循环
-#     """
-#     if events:
-#         if not isinstance(events, list):
-#             events = [events]
-#         for event in events:
-#             result = event(loop)
-#             if isawaitable(result):
-#                 loop.run_until_complete(result)
 
 
-def serve(host, port, request_handler, error_handler, before_start=None,
-          after_start=None, before_stop=None, after_stop=None, debug=False,
+
+def serve(host, port, request_handler, error_handler, debug=False,
           request_timeout=60, sock=None, request_max_size=None,
           reuse_port=False, loop=None, protocol=HttpProtocol, backlog=100):
     """
@@ -287,8 +274,7 @@ def serve(host, port, request_handler, error_handler, before_start=None,
     if debug:
         loop.set_debug(debug)
 
-    # 各种钩子
-    # trigger_events(before_start, loop)
+
 
     connections = set()
     signal = Signal()
@@ -323,7 +309,7 @@ def serve(host, port, request_handler, error_handler, before_start=None,
         log.exception("Unable to start server")
         return
 
-    # trigger_events(after_start, loop)
+
 
     # Register signals for graceful termination
     for _signal in (SIGINT, SIGTERM):
@@ -335,8 +321,7 @@ def serve(host, port, request_handler, error_handler, before_start=None,
     finally:
         log.info("Stop requested, draining connections...")
 
-        # Run the on_stop function if provided
-        # trigger_events(before_stop, loop)
+
 
         # 事件循环解说后释放所有连接
         http_server.close()
@@ -350,6 +335,6 @@ def serve(host, port, request_handler, error_handler, before_start=None,
         while connections:
             loop.run_until_complete(asyncio.sleep(0.1))
 
-        # trigger_events(after_stop, loop)
+
 
         loop.close()
