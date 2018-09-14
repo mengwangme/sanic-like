@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<form action="/addbook" method="post" name="addBook" class="form-inline">
+    <div class="form-group">
+        <label for="exampleInputEmail1">书名：</label>
+        <input type="text" name="bookname" class="form-control" >
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">作者：</label>
+        <input type="text" name="author" class="form-control" >
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">出版社：</label>
+        <input type="text" name="pub_house" class="form-control" >
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">出版日期：</label>
+        <input type="date" name="pub_date" class="form-control" placeholder="">
+    </div>
+    <button type="submit" >添加</button>
+</form>
+
+<table class="table table-striped" border="1">
+    <tr>
+        <td>书名</td>
+        <td>作者</td>
+        <td>出版社</td>
+        <td>出版日期</td>
+    </tr>
+{% for book in booklist %}
+    <tr>
+
+        <td>{{ book.bookname }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.pub_house }}</td>
+        <td>{{ book.pub_date }}</td>
+        <td><a href="/deletebook/{{ book.bookname }}">删除</a></td>
+    </tr>
+{% endfor %}
+
+</table>
+
+
+</body>
+</html>

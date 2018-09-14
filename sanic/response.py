@@ -1,7 +1,8 @@
-from aiofiles import open as open_async
-from mimetypes import guess_type
 from os import path
+from mimetypes import guess_type
+from urllib.parse import quote_plus
 
+from aiofiles import open as open_async
 from ujson import dumps as json_dumps
 
 from sanic.cookies import CookieJar
@@ -172,3 +173,23 @@ async def file(location, mime_type=None, headers=None):
                         headers=headers,
                         content_type=mime_type,
                         body_bytes=out_stream)
+
+# 重定向页面
+def redirect(to, headers=None, status=302,
+             content_type="text/html; charset=utf-8"):
+    """
+    重定向页面
+    :param to: 重定向至的路径
+    """
+    headers = headers or {}
+
+    # 在重定向前引用 URL
+    safe_to = quote_plus(to, safe=":/#?&=@[]!$&'()*+,;")
+
+    # 根据 RFC 7231, 指定重定向的 URL
+    headers['Location'] = safe_to
+
+    return HTTPResponse(
+        status=status,
+        headers=headers,
+        content_type=content_type)
