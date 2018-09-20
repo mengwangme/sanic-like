@@ -1,10 +1,11 @@
-from peewee import MySQLDatabase
+from peewee_async import MySQLDatabase
 from jinja2 import Environment, PackageLoader
 
 
 # database
-db = MySQLDatabase('sanic_project_db', user='root', password='', host='127.0.0.1', port=3306)
-
+db = MySQLDatabase('sanic_project_db', user='root',
+                   password='', host='127.0.0.1',
+                   port=3306)
 
 # Jinja2
 env = Environment(loader=PackageLoader('simple_project','templates'))

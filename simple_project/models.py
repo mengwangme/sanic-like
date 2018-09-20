@@ -1,19 +1,22 @@
 import datetime
 
-from peewee import *
+import peewee
+import peewee_async
 
 from simple_project.config import db
 
 
-class Book(Model):
-    bookname = CharField()
-    author = CharField()
-    pub_house = CharField()
-    pub_date = DateField(default=datetime.datetime.now())
+class Book(peewee.Model):
+    bookname = peewee.CharField()
+    author = peewee.CharField()
+    pub_house = peewee.CharField()
+    pub_date = peewee.DateField(default=datetime.datetime.now())
 
     class Meta:
         database = db
 
 
-db.connect()
-db.create_tables([Book])
+objects = peewee_async.Manager(db)
+
+Book.create_table(True)
+
