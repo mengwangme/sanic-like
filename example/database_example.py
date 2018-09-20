@@ -1,3 +1,4 @@
+import sys
 import asyncio
 
 import peewee
@@ -24,6 +25,11 @@ async def handler():
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(handler())
+loop.close()
+if loop.is_closed():
+    sys.exit(0)
+
+
 
 
 
